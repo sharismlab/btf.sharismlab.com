@@ -61,30 +61,62 @@
     </div><!-- /.navbar-wrapper -->
 
 
+    <!-- Marketing messaging and featurettes
+    ================================================== -->
+    <!-- Wrap the rest of the page in another container to center all the content. -->
+
+    <div class="container marketing">
+
+      <!-- Three columns of text below the carousel -->
+      <div class="row">
+        <div class="span4">
+          <img class="img-circle" >
+          <h2>Collect</h2>
+          <p>A chrome extension to collect tweets from Weibo.</p>
+          <p><a href="/extensions/zhuawei.crx">Install!</a></p>
+        </div><!-- /.span4 -->
+        <div class="span4">
+          <img class="img-circle" >
+          <h2>Explore</h2>
+          <p>A complete dahsboard to analyze your data.</p>
+          <p><a href="/kibana/#/dashboard/elasticsearch/airport">Explore!</a></p>
+        </div><!-- /.span4 -->
+        <div class="span4">
+          <img class="img-circle" >
+          <h2>Understand</h2>
+            <p>A tool suite for media professionals.</p>
+            <a class="btn btn-primary" href="/kibana/#/dashboard/elasticsearch/airport">Give it a try</a>
+        </div><!-- /.span4 -->
+      </div><!-- /.row -->
+  </div><!-- /.container -->
+    
 
     <!-- Carousel
     ================================================== -->
     <div id="myCarousel" class="carousel slide">
       <div class="carousel-inner">
         <div class="item active">
-          <img src="/images/social.png" alt="">
-          <div class="container">
+          <!-- <img src="/images/social.png" alt=""> -->
+          <div class="span8" id="network"></div>
+          <div class="span4">
             <div class="carousel-caption">
               <h1>Social Network Visualization</h1>
             </div>
           </div>
         </div>
         <div class="item">
-          <img src="/images/oz214.png" alt="">
-          <div class="container">
+          <!-- <img src="/images/oz214.png" alt=""> -->          
+          <div class="span8" id="world"></div>
+          <div class="span4">
             <div class="carousel-caption">
               <h1>Data Journalism</h1>
             </div>
           </div>
         </div>
         <div class="item">
-          <img src="/images/seuron.jpg" alt="">
-          <div class="container">
+          <!-- <img src="/images/seuron.jpg" alt=""> -->
+          <div class="span8"  id="neurons"></div>
+          <div class="span4">
             <div class="carousel-caption">
               <h1>Social Brain Theory</h1>
             </div>
@@ -95,43 +127,14 @@
       <a class="right carousel-control" href="#myCarousel" data-slide="next">&rsaquo;</a>
     </div><!-- /.carousel -->
 
-
-
-    <!-- Marketing messaging and featurettes
-    ================================================== -->
-    <!-- Wrap the rest of the page in another container to center all the content. -->
-
-    <div class="container marketing">
-
-      <!-- Three columns of text below the carousel -->
-      <div class="row">
-        <div class="span4">
-          <img class="img-circle" data-src="holder.js/140x140">
-          <h2>Collecting</h2>
-          <p>We provide a chrome extension to collect tweets from Weibo for further study.</p>
-          <p><a href="/extensions/zhuawei.crx">Install!</a></p>
-        </div><!-- /.span4 -->
-        <div class="span4">
-          <img class="img-circle" data-src="holder.js/140x140">
-          <h2>Exploring</h2>
-          <p>We use Kibana to analyze tweets data.</p>
-          <p><a href="/kibana/#/dashboard/elasticsearch/airport">Explore!</a></p>
-        </div><!-- /.span4 -->
-        <div class="span4">
-          <img class="img-circle" data-src="holder.js/140x140">
-          <h2>Sharing</h2>
-          <p>You can create shortcut to share what you found.</p>
-        </div><!-- /.span4 -->
-      </div><!-- /.row -->
-
-      <!-- FOOTER -->
+<div class="container">
+    <!-- FOOTER -->
       <footer>
         <p class="pull-right"><a href="#">Back to top</a></p>
         <p>&copy; 2013 SharismLab</p>
       </footer>
 
-    </div><!-- /.container -->
-
+</div><!-- /.container -->
 
 
     <!-- Le javascript
@@ -139,6 +142,148 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="/javascripts/jquery.min.js"></script>
     <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/d3.hexbin.v0.min.js?5c6e4f0"></script>
+    <script src="http://d3js.org/d3.interpolate-zoom.v0.min.js?83165af"></script>
+    <script>
+      jQuery(document).ready(function () {
+
+        var width = 960,
+            height = 500,
+            rotate = [10, -10],
+            velocity = [.003, -.001],
+            time = Date.now();
+
+        var projection = d3.geo.orthographic()
+            .scale(240)
+            .translate([width / 2, height / 2])
+            .clipAngle(90 + 1e-6)
+            .precision(.3);
+
+        var path = d3.geo.path()
+            .projection(projection);
+
+        var graticule = d3.geo.graticule();
+
+        var svg = d3.select("#world").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        svg.append("path")
+            .datum({type: "Sphere"})
+            .attr("class", "sphere")
+            .attr("d", path);
+
+        svg.append("path")
+            .datum(graticule)
+            .attr("class", "graticule")
+            .attr("d", path);
+
+        svg.append("path")
+            .datum({type: "LineString", coordinates: [[-180, 0], [-90, 0], [0, 0], [90, 0], [180, 0]]})
+            .attr("class", "equator")
+            .attr("d", path);
+
+        var feature = svg.selectAll("path");
+
+        d3.timer(function() {
+          var dt = Date.now() - time;
+          projection.rotate([rotate[0] + velocity[0] * dt, rotate[1] + velocity[1] * dt]);
+          feature.attr("d", path);
+        });
+
+        /* network */
+        var color = d3.scale.category20();
+
+        var force = d3.layout.force()
+            .charge(-150)
+            .linkDistance(90)
+            .size([width, height]);
+
+        var svg = d3.select("#network").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        d3.json("/javascripts/miserables.json", function(error, graph) {
+          force
+              .nodes(graph.nodes)
+              .links(graph.links)
+              .start();
+
+          var link = svg.selectAll(".link")
+              .data(graph.links)
+            .enter().append("line")
+              .attr("class", "link")
+              .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+          var node = svg.selectAll(".node")
+              .data(graph.nodes)
+            .enter().append("circle")
+              .attr("class", "node")
+              .attr("r", 5)
+              .style("fill", function(d) { return color(d.group); })
+              .call(force.drag);
+
+          node.append("title")
+              .text(function(d) { return d.name; });
+
+          force.on("tick", function() {
+            link.attr("x1", function(d) { return d.source.x; })
+                .attr("y1", function(d) { return d.source.y; })
+                .attr("x2", function(d) { return d.target.x; })
+                .attr("y2", function(d) { return d.target.y; });
+
+            node.attr("cx", function(d) { return d.x; })
+                .attr("cy", function(d) { return d.y; });
+          });
+        });
+
+        var  radius = 10;
+
+        var p0 = [250, 200, 60],
+            p1 = [560, 300, 120];
+
+        var svg2 = d3.select("#neurons").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+          .append("g")
+            .call(transition, p0, p1);
+
+        svg2.append("path")
+            .attr("class", "mesh")
+            .attr("d", d3.hexbin()
+              .size([width, height])
+              .radius(radius)
+              .mesh);
+
+        svg2.selectAll("circle")
+            .data([p0, p1])
+          .enter().append("circle")
+            .attr("class", function(d, i) { return i ? "end" : "start"; })
+            .attr("cx", function(d) { return d[0]; })
+            .attr("cy", function(d) { return d[1]; })
+            .attr("r", function(d) { return d[2] / 2 - .5; });
+
+        function transition(svg2, start, end) {
+          var center = [width / 2, height / 2],
+              i = d3.interpolateZoom(start, end);
+
+          svg2
+              .attr("transform", transform(start))
+            .transition()
+              .delay(250)
+              .duration(i.duration * 2)
+              .attrTween("transform", function() { return function(t) { return transform(i(t)); }; })
+              .each("end", function() { d3.select(this).call(transition, end, start); });
+
+          function transform(p) {
+            var k = height / p[2];
+            return "translate(" + (center[0] - p[0] * k) + "," + (center[1] - p[1] * k) + ")scale(" + k + ")";
+          }
+        }
+
+      });
+    </script>
     <script>
       !function ($) {
         $(function(){
@@ -147,6 +292,5 @@
         })
       }(window.jQuery)
     </script>
-    <script src="/bootstrap/js/holder/holder.js"></script>
   </body>
 </html>

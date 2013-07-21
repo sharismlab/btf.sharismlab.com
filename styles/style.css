@@ -56,12 +56,20 @@ body {
 
 /* Carousel base class */
 .carousel {
+/*    
     margin-bottom: 60px;
+    position:fixed;
+    top: 0;
+    bottom: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;*/
 }
 
 .carousel .container {
     position: relative;
     z-index: 9;
+    margin-bottom: 60px;
 }
 
 .carousel-control {
@@ -96,7 +104,7 @@ body {
 .carousel-caption .lead {
     margin: 0;
     line-height: 1.25;
-    color: black;
+    color: #ababab;
     text-shadow: 0 1px 1px rgba(0,0,0,.4);
 }
 .carousel-caption .btn {
@@ -107,6 +115,9 @@ body {
 -------------------------------------------------- */
 
 /* Center align the text within the three columns below the carousel */
+.marketing {
+    margin-top: 70px;
+}
 .marketing .span4 {
     text-align: center;
 }
@@ -229,4 +240,50 @@ body {
         line-height: 1.5;
     }
 
+}
+
+
+/*d3 style*/
+path {
+  fill: none;
+  stroke-linejoin: round;
+}
+
+.sphere,
+.graticule {
+  stroke: #aaa;
+}
+
+.equator {
+  stroke: red;
+  stroke-width: 2px;
+}
+
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.link {
+  stroke: #999;
+  stroke-opacity: .6;
+}
+
+#neurons {
+    overflow:hidden;
+}
+.mesh {
+  fill: none;
+  stroke: #000;
+  stroke-width: .25px;
+}
+
+.start {
+  fill: none;
+  stroke: brown;
+}
+
+.end {
+  fill: none;
+  stroke: steelblue;
 }
